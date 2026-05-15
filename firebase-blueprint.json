@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "PortfolioItem": {
+      "title": "Portfolio Item",
+      "description": "A piece of work showcased in the portfolio",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "img": { "type": "string", "format": "uri" },
+        "link": { "type": "string", "format": "uri" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "img"]
+    },
+    "Admin": {
+      "title": "Admin User",
+      "description": "User with administrative privileges",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "uid": { "type": "string" }
+      },
+      "required": ["email", "uid"]
+    },
+    "ContactMessage": {
+      "title": "Contact Message",
+      "description": "A message from a potential client",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "type": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "phone", "email", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/portfolio/{itemId}": {
+      "schema": "PortfolioItem",
+      "description": "Collection of portfolio works"
+    },
+    "/admins/{uid}": {
+      "schema": "Admin",
+      "description": "List of authorized admin users"
+    },
+    "/contacts/{messageId}": {
+      "schema": "ContactMessage",
+      "description": "Messages from contact form"
+    }
+  }
+}

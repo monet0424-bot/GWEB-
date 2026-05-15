@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // AUTH HELPERS
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && isEmailVerified() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // ID VALIDATION
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // SCHEMA VALIDATION: PortfolioItem
+    function isValidPortfolioItem(data) {
+      return data.keys().hasAll(['title', 'category', 'img', 'updatedAt', 'link']) && 
+             data.keys().size() >= 5 &&
+             data.title is string && data.title.size() > 0 && data.title.size() <= 100 &&
+             data.category is string && data.category.size() > 0 && data.category.size() <= 50 &&
+             data.img is string && data.img.size() > 0 && data.img.size() <= 1000 &&
+             data.link is string && data.link.size() <= 1000 &&
+             data.updatedAt == request.time;
+    }
+
+    // SCHEMA VALIDATION: ContactMessage
+    function isValidContactMessage(data) {
+      return data.keys().hasAll(['name', 'phone', 'email', 'type', 'message', 'createdAt']) &&
+             data.keys().size() == 6 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 100 &&
+             data.type is string &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 5000 &&
+             data.createdAt == request.time;
+    }
+
+    // PORTFOLIO COLLECTION
+    match /portfolio/{itemId} {
+      allow read: if true;
+      
+      allow create: if isAdmin() && 
+                      isValidId(itemId) && 
+                      isValidPortfolioItem(request.resource.data) &&
+                      request.resource.data.createdAt == request.time;
+      
+      allow update: if isAdmin() && 
+                      isValidId(itemId) && 
+                      isValidPortfolioItem(request.resource.data) &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isAdmin() && isValidId(itemId);
+    }
+
+    // CONTACTS COLLECTION
+    match /contacts/{messageId} {
+      allow create: if isValidContactMessage(request.resource.data);
+      allow read, delete: if isAdmin();
+    }
+
+    // ADMINS COLLECTION
+    match /admins/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+      // Allow bootstrap for specific owner email
+      allow create: if isSignedIn() && 
+                      isEmailVerified() && 
+                      request.auth.token.email == "monet0424@gmail.com" && 
+                      request.auth.uid == uid;
+      allow update, delete: if false; 
+    }
+  }
+}
