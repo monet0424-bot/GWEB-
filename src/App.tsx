@@ -290,7 +290,7 @@ export default function App() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-fixed opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 md:h-2.5 w-2 md:w-2.5 bg-primary-fixed"></span>
                   </div>
-                  <span className="text-[8px] md:text-[10px] font-label uppercase tracking-[0.3em] text-primary-fixed font-bold">New Vision 2024</span>
+                  <span className="text-[8px] md:text-[10px] font-label uppercase tracking-[0.3em] text-primary-fixed font-bold">NEW VISION 2026</span>
                 </div>
 
                 <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-[100px] font-display font-black leading-[0.9] mb-8 md:mb-12 tracking-tighter text-white">
